@@ -1,0 +1,45 @@
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe.config
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+D:\Users\bartosz.bialon\source\repos\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe.config
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+D:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe.config
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+F:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe.config
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+E:\STUDIA\Architektura systemów komputerowych\Intel 8086 Emulator - PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe.config
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+C:\Users\Bartosz\Desktop\EMULATOR PROJEKT\Intel 8086 - Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
