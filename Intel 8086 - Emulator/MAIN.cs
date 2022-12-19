@@ -1,4 +1,6 @@
-﻿using System;
+﻿//© Bartosz Białoń, 20-12-2022
+
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -8,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Markup;
+using System.Linq.Expressions;
 
 namespace Intel_8086___Emulator
 {
@@ -24,7 +27,12 @@ namespace Intel_8086___Emulator
         public short CX { get; set; }
         public short DX { get; set; }
 
-        
+
+        //Flags
+
+        public bool CF { get; set; } //Carry Flag
+        public bool DF { get; set; } //Direction Flag
+        public bool IF { get; set; } //Interrupt Flag
 
         public void DEFAULT() //Setting register values to zero 
         {
@@ -32,17 +40,54 @@ namespace Intel_8086___Emulator
             BX = 0;
             CX = 0;
             DX = 0;
+            CF = false;
+            DF = false;
+            IF = false;
         }
 
-        public static void REG_VALUES(short AX, short BX, short CX, short DX) //Printing current register values
+        public static void REG_VALUES(MAIN a) //Printing current register values
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Available registers:");
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("(1) AX = " + AX);
-            Console.WriteLine("(2) BX = " + BX);
-            Console.WriteLine("(3) CX = " + CX);
-            Console.WriteLine("(4) DX = " + DX + "\n");
+            Console.WriteLine("(1) AX = " + a.AX);
+            Console.WriteLine("(2) BX = " + a.BX);
+            Console.WriteLine("(3) CX = " + a.CX);
+            Console.WriteLine("(4) DX = " + a.DX + "\n");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Available flags: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            
+            if (a.CF)
+            {
+                Console.WriteLine("(1) CF = " + 1);
+            }
+
+            else
+            {
+                Console.WriteLine("(1) CF = " + 0);
+            }
+
+            if (a.DF)
+            {
+                Console.WriteLine("(2) DF = " + 1);
+            }
+
+            else
+            {
+                Console.WriteLine("(2) DF = " + 0);
+            }
+
+            if (a.IF)
+            {
+                Console.WriteLine("(3) IF = " + 1 + "\n");
+            }
+
+            else
+            {
+                Console.WriteLine("(3) IF = " + 0 + "\n");
+            }
 
             Console.ResetColor();
         }
@@ -54,15 +99,12 @@ namespace Intel_8086___Emulator
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.WriteLine("(1) Arithmetic");
             Console.WriteLine("(2) Data Transfer");
-            Console.WriteLine("(3) Bit Manipulation");
-            Console.WriteLine("(4) Control Transfer");
-            Console.WriteLine("(5) Control");
-            Console.WriteLine("(6) String \n");
+            Console.WriteLine("(3) Control\n");
 
             Console.ResetColor();
         }
 
-        public static void SEL_INSTR(int a)
+        public static void SEL_INSTR(int a) //Printing instruction selection question of given function
         {
             switch (a)
             {
@@ -72,9 +114,10 @@ namespace Intel_8086___Emulator
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine(">>(1) ADD");
-                    Console.WriteLine(">>(2) SUB");
-                    Console.WriteLine(">>(3) INC");
-                    Console.WriteLine(">>(4) DEC\n");
+                    Console.WriteLine(">>(2) ADC");
+                    Console.WriteLine(">>(3) SUB");
+                    Console.WriteLine(">>(4) INC");
+                    Console.WriteLine(">>(5) DEC\n");
                     Console.ResetColor();
                     break;
                 case 2:
@@ -83,6 +126,7 @@ namespace Intel_8086___Emulator
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine(">>(1) MOV");
+                    Console.WriteLine(">>(2) XCHG\n");
                     Console.ResetColor();
                     break;
                 case 3:
@@ -90,31 +134,14 @@ namespace Intel_8086___Emulator
                     Console.WriteLine("Select your desired bit manipulation instruction: ");
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(">>(1) Nothing implemented yet!");
-                    Console.ResetColor();
-                    break;
-                case 4:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Select your desired control transfer instruction: ");
-                    Console.ResetColor();
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(">>(1) Nothing implemented yet!");
-                    Console.ResetColor();
-                    break;
-                case 5:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Select your desired control instruction: ");
-                    Console.ResetColor();
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(">>(1) Nothing implemented yet!");
-                    Console.ResetColor();
-                    break;
-                case 6:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Select your desired string instruction: ");
-                    Console.ResetColor();
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(">>(1) Nothing implemented yet!");
+                    Console.WriteLine(">>(1) STC");
+                    Console.WriteLine(">>(2) CLC");
+                    Console.WriteLine(">>(3) CMC");
+                    Console.WriteLine(">>(4) STD");
+                    Console.WriteLine(">>(5) CLD");
+                    Console.WriteLine(">>(6) STI");
+                    Console.WriteLine(">>(7) CLI");
+                    Console.WriteLine(">>(8) HLT\n");
                     Console.ResetColor();
                     break;
                 default:
@@ -125,7 +152,7 @@ namespace Intel_8086___Emulator
             }
         }
         
-        public static void SLEEP()
+        public static void SLEEP() //Simulating the process of data processing
         {
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("\nProcessing...");
@@ -138,210 +165,1511 @@ namespace Intel_8086___Emulator
             Console.Clear();
         }
 
+        public static void SLEEP_CONTROL() //Variation of SLEEP function
+        {
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.WriteLine("Executing...\n");
+            Thread.Sleep(1000);
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("Processing...");
+            Thread.Sleep(1500);
+            Console.WriteLine("Processing...");
+            Thread.Sleep(1500);
+            Console.WriteLine("Processing...");
+            Thread.Sleep(1500);
+            Console.ResetColor();
+            Console.Clear();
+        }
+
         public static void Main(string[] args)
         {
+            bool exit = false;
+
 
             MAIN m = new MAIN();
             m.DEFAULT();
-            REG_VALUES(m.AX, m.BX, m.CX, m.DX);
-            SEL_FUNC();
 
-            int selected_function, selected_instruction, first_to_operate_with = 0, second_to_operate_with = 0;
-            short ADD_num = 0;
-
-            do {
-                selected_function = Convert.ToInt32(Console.ReadLine());
-            } while (selected_function < 1 || selected_function > 6);
-
-            Console.Clear();
-
-            SEL_INSTR(selected_function);
-
-
-            selected_instruction = Convert.ToInt32(Console.ReadLine());
-
-            Console.Clear();
-
-            if (selected_function == 1)
+            do
             {
-                if (selected_instruction == 1)
+
+                REG_VALUES(m);
+                SEL_FUNC();
+
+                int selected_function = 0, selected_instruction = 0, first_to_operate_with = 0, second_to_operate_with = 0;
+
+                short ADD_num = 0;
+
+                do
                 {
 
+                    bool exception = false;
+
+                    try
+                    {
+                        selected_function = Convert.ToInt32(Console.ReadLine());
+                    }
+
+                    catch (FormatException)
+                    {
+                        exception = true;
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Invalid input format");
+                        Console.ResetColor();
+                        SEL_FUNC();
+                    }
+
+                    catch (OverflowException)
+                    {
+                        exception = true;
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Invalid value - Overflow");
+                        Console.ResetColor();
+                        SEL_FUNC();
+                    }
+
+                    if (exception == false && (selected_function < 1 || selected_function > 3))
+                    {
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                        Console.ResetColor();
+                        SEL_FUNC();
+                    }
+
+                } while (selected_function < 1 || selected_function > 3);
+
+
+                switch (selected_function)
+                {
+                    case 1:
+                        Console.Clear();
+                        SEL_INSTR(selected_function);
+                        break;
+                    case 2:
+                        Console.Clear();
+                        SEL_INSTR(selected_function);
+                        break;
+                    case 3:
+                        Console.Clear();
+                        SEL_INSTR(selected_function);
+                        break;
+                }
+
+
+                if (selected_function == 1) //Arithmetic handling
+                {
                     do
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("Select first register on which You want to operate: ");
-                        Console.ResetColor();
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("(1) AX");
-                        Console.WriteLine("(2) BX");
-                        Console.WriteLine("(3) CX");
-                        Console.WriteLine("(4) DX");
-                        Console.WriteLine("(5) number\n");
-                        Console.ResetColor();
+                        bool exception = false;
 
-                        first_to_operate_with = Convert.ToInt32(Console.ReadLine());
-                        Console.Write("\n");
+                        try
+                        {
+                            selected_instruction = Convert.ToInt32(Console.ReadLine());
+                            Console.Clear();
+                        }
 
-                        if (first_to_operate_with < 1 || first_to_operate_with >= 5)
+                        catch (FormatException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid input format");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+                        catch (OverflowException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid value - Overflow");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+
+                        if (exception == false && (selected_instruction < 1 || selected_instruction > 5))
                         {
                             Console.Clear();
                             Console.ForegroundColor = ConsoleColor.DarkRed;
                             Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
                             Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+                    } while (selected_instruction < 1 || selected_instruction > 5);
+
+                    if (selected_instruction == 1) //ADD handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select first register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                Console.Write("\n");
+                            }
+
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+
+                        switch (first_to_operate_with)
+                        {
+                            case 1: //First register - AX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 2: //First register - BX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 3: //First register - CX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5);
+                                break;
+
+                            case 4: //First register - DX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5);
+                                break;
+                        }
+                    }
+
+                    else if (selected_instruction == 2) //ADC handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select first register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                Console.Write("\n");
+                            }
+
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+
+                        switch (first_to_operate_with)
+                        {
+                            case 1: //First register - AX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 2: //First register - BX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 3: //First register - CX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5);
+                                break;
+
+                            case 4: //First register - DX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5);
+                                break;
+                        }
+                    }
+
+                    else if (selected_instruction == 3) //SUB handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select first register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                Console.Write("\n");
+                            }
+
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+
+                        switch (first_to_operate_with)
+                        {
+                            case 1: //First register - AX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 2: //First register - BX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5);
+                                break;
+
+                            case 3: //First register - CX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(4) DX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5);
+                                break;
+
+                            case 4: //First register - DX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register or value with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(5) number\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (second_to_operate_with == 5)
+                                    {
+                                        do
+                                        {
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+
+                                            try
+                                            {
+                                                ADD_num = Convert.ToInt16(Console.ReadLine());
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (FormatException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid input format");
+                                                Console.ResetColor();
+                                            }
+
+                                            catch (OverflowException)
+                                            {
+                                                exception = true;
+                                                Console.Clear();
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine("Invalid value - Overflow");
+                                                Console.ResetColor();
+                                            }
+
+                                        } while (ADD_num == 0);
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5);
+                                break;
+                        }
+                    }
+
+                    else if (selected_instruction == 4) //INC handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                            }
+
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+                    }
+
+                    else if (selected_instruction == 5) //DEC handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                            }
+
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+                    }
+                }
+
+                else if (selected_function == 2) //Data Transfer handling
+                {
+                    do
+                    {
+                        bool exception = false;
+
+                        try
+                        {
+                            selected_instruction = Convert.ToInt32(Console.ReadLine());
+                            Console.Clear();
+                        }
+
+                        catch (FormatException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid input format");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+                        catch (OverflowException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid value - Overflow");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
                         }
 
 
-                    } while (first_to_operate_with < 1 || first_to_operate_with >= 5);
+                        if (exception == false && (selected_instruction < 1 || selected_instruction > 2))
+                        {
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
 
-                    if (first_to_operate_with == 1)
+                    } while (selected_instruction < 1 || selected_instruction > 2);
+
+                    if (selected_instruction == 1) //MOV handling
                     {
                         do
                         {
+                            bool exception = false;
+
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.WriteLine("Select second register on which You want to operate: ");
-                            Console.ResetColor();
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine("(2) BX");
-                            Console.WriteLine("(3) CX");
-                            Console.WriteLine("(4) DX");
-                            Console.WriteLine("(5) number\n");
-                            Console.ResetColor();
-
-                            second_to_operate_with = Convert.ToInt32(Console.ReadLine());
-                            Console.Write("\n");
-
-                            if (second_to_operate_with < 2 || second_to_operate_with > 5)
-                            {
-                                Console.Clear();
-                                Console.ForegroundColor = ConsoleColor.DarkRed;
-                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
-                                Console.ResetColor();
-                            }
-
-                            if (second_to_operate_with == 5)
-                            {
-                                do
-                                {
-                                    Console.Clear();
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                    Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                    ADD_num = Convert.ToInt16(Console.ReadLine());
-                                    Console.ResetColor();
-
-                                } while (ADD_num == 0);
-                            }
-
-
-                        } while (second_to_operate_with < 2 || second_to_operate_with > 5);
-                    }
-
-                    else if (first_to_operate_with == 2)
-                    {
-                        do
-                        {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.WriteLine("Select second register on which You want to operate: ");
-                            Console.ResetColor();
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine("(1) AX");
-                            Console.WriteLine("(3) CX");
-                            Console.WriteLine("(4) DX");
-                            Console.WriteLine("(5) number\n");
-                            Console.ResetColor();
-
-                            second_to_operate_with = Convert.ToInt32(Console.ReadLine());
-                            Console.Write("\n");
-
-                            if (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5)
-                            {
-                                Console.Clear();
-                                Console.ForegroundColor = ConsoleColor.DarkRed;
-                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
-                                Console.ResetColor();
-                            }
-
-                            if (second_to_operate_with == 5)
-                            {
-                                do
-                                {
-                                    Console.Clear();
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                    Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                    ADD_num = Convert.ToInt16(Console.ReadLine());
-                                    Console.Clear();
-                                    Console.ResetColor();
-
-                                } while (ADD_num == 0);
-                            }
-
-                        } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 5);
-                    }
-
-                    else if (first_to_operate_with == 3)
-                    {
-                        do
-                        {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.WriteLine("Select second register on which You want to operate: ");
-                            Console.ResetColor();
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine("(1) AX");
-                            Console.WriteLine("(2) BX");
-                            Console.WriteLine("(4) DX");
-                            Console.WriteLine("(5) number\n");
-                            Console.ResetColor();
-
-                            second_to_operate_with = Convert.ToInt32(Console.ReadLine());
-                            Console.Write("\n");
-
-                            if (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5)
-                            {
-                                Console.Clear();
-                                Console.ForegroundColor = ConsoleColor.DarkRed;
-                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
-                                Console.ResetColor();
-                            }
-
-                            if (second_to_operate_with == 5)
-                            {
-                                do
-                                {
-                                    Console.Clear();
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                    Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                    ADD_num = Convert.ToInt16(Console.ReadLine());
-                                    Console.Clear();
-                                    Console.ResetColor();
-
-                                } while (ADD_num == 0);
-                            }
-
-                        } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 5);
-
-                    }
-
-                    else if (first_to_operate_with == 4)
-                    {
-                        do
-                        {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.WriteLine("Select second register on which You want to operate: ");
+                            Console.WriteLine("Select first register on which you want to operate: ");
                             Console.ResetColor();
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine("(1) AX");
                             Console.WriteLine("(2) BX");
                             Console.WriteLine("(3) CX");
-                            Console.WriteLine("(5) number\n");
+                            Console.WriteLine("(4) DX\n");
                             Console.ResetColor();
 
-                            second_to_operate_with = Convert.ToInt32(Console.ReadLine());
-                            Console.Write("\n");
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                Console.Write("\n");
+                            }
 
-                            if (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5)
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
                             {
                                 Console.Clear();
                                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -349,119 +1677,629 @@ namespace Intel_8086___Emulator
                                 Console.ResetColor();
                             }
 
-                            if (second_to_operate_with == 5)
-                            {
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+
+                        switch (first_to_operate_with)
+                        {
+                            case 1: //First register - AX
                                 do
                                 {
-                                    Console.Clear();
+                                    bool exception = false;
+
                                     Console.ForegroundColor = ConsoleColor.White;
-                                    Console.WriteLine("Insert number which You want to add to the chosen register:\n ");
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    ADD_num = Convert.ToInt16(Console.ReadLine());
-                                    Console.Clear();
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX\n");
                                     Console.ResetColor();
 
-                                } while (ADD_num == 0);
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 2 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 2 || second_to_operate_with > 4);
+                                break;
+
+                            case 2: //First register - BX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 4);
+                                break;
+
+                            case 3: //First register - CX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(4) DX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 4);
+                                break;
+
+                            case 4: //First register - DX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with > 3))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with > 3);
+                                break;
+                        }
+                    }
+
+                    if (selected_instruction == 2) //XCHG handling
+                    {
+                        do
+                        {
+                            bool exception = false;
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine("Select first register on which you want to operate: ");
+                            Console.ResetColor();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("(1) AX");
+                            Console.WriteLine("(2) BX");
+                            Console.WriteLine("(3) CX");
+                            Console.WriteLine("(4) DX\n");
+                            Console.ResetColor();
+
+                            try
+                            {
+                                first_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                Console.Write("\n");
                             }
 
-                        } while (second_to_operate_with < 1 || second_to_operate_with == 4 || second_to_operate_with > 5);
+                            catch (FormatException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input format");
+                                Console.ResetColor();
+                            }
+
+                            catch (OverflowException)
+                            {
+                                exception = true;
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid value - Overflow");
+                                Console.ResetColor();
+                            }
+
+                            if (exception == false && (first_to_operate_with < 1 || first_to_operate_with > 4))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                Console.ResetColor();
+                            }
+
+                        } while (first_to_operate_with < 1 || first_to_operate_with > 4);
+
+                        switch (first_to_operate_with)
+                        {
+                            case 1: //First register - AX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 2 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 2 || second_to_operate_with > 4);
+                                break;
+
+                            case 2: //First register - BX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(3) CX");
+                                    Console.WriteLine("(4) DX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 2 || second_to_operate_with > 4);
+                                break;
+
+                            case 3: //First register - CX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(4) DX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 4))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with == 3 || second_to_operate_with > 4);
+                                break;
+
+                            case 4: //First register - DX
+                                do
+                                {
+                                    bool exception = false;
+
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    Console.WriteLine("Select second register with which you want to operate: ");
+                                    Console.ResetColor();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("(1) AX");
+                                    Console.WriteLine("(2) BX");
+                                    Console.WriteLine("(3) CX\n");
+                                    Console.ResetColor();
+
+                                    try
+                                    {
+                                        second_to_operate_with = Convert.ToInt32(Console.ReadLine());
+                                        Console.Write("\n");
+                                    }
+
+                                    catch (FormatException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid input format");
+                                        Console.ResetColor();
+                                    }
+
+                                    catch (OverflowException)
+                                    {
+                                        exception = true;
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("Invalid value - Overflow");
+                                        Console.ResetColor();
+                                    }
+
+                                    if (exception == false && (second_to_operate_with < 1 || second_to_operate_with > 3))
+                                    {
+                                        Console.Clear();
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                                        Console.ResetColor();
+                                    }
+
+                                } while (second_to_operate_with < 1 || second_to_operate_with > 3);
+                                break;
+                        }
                     }
                 }
 
-                //else if (selected_instruction == 2)
-                //{
-
-
-
-                //}
-
-                else if (selected_instruction == 3)
+                else if (selected_function == 3) //Control handling
                 {
+                    do
+                    {
+                        bool exception = false;
+
+                        try
+                        {
+                            selected_instruction = Convert.ToInt32(Console.ReadLine());
+                            Console.Clear();
+                        }
+
+                        catch (FormatException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid input format");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+                        catch (OverflowException)
+                        {
+                            exception = true;
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid value - Overflow");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+
+                        if (exception == false && (selected_instruction < 1 || selected_instruction > 8))
+                        {
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine("You have inserted wrong number! Please type it again correctly...");
+                            Console.ResetColor();
+                            SEL_INSTR(selected_function);
+                        }
+
+                    } while (selected_instruction < 1 || selected_instruction > 8);
 
                 }
-            }
 
-            switch (selected_function)
-            {
-                case 1:
-                    switch(selected_instruction)
-                    {
-                        case 1:
-                            if (ADD_num != 0)
-                            {
+
+
+                switch (selected_function) //Used to perform certain tasks for example: ADD, MOV... 
+                {
+                    case 1: //Arithmetics
+                        switch (selected_instruction)
+                        {
+                            case 1: //ADD
+                                if (ADD_num != 0)
+                                {
+                                    SLEEP();
+                                    ADD.ADD_REGS(m, first_to_operate_with, ADD_num);
+                                }
+
+                                else
+                                {
+                                    SLEEP();
+                                    ADD.ADD_REGS(m, first_to_operate_with, second_to_operate_with);
+                                }
+                                break;
+                            case 2: //ADC
+                                if (ADD_num != 0)
+                                {
+                                    SLEEP();
+                                    ADC.ADC_REGS(m, first_to_operate_with, ADD_num);
+                                }
+
+                                else
+                                {
+                                    SLEEP();
+                                    ADC.ADC_REGS(m, first_to_operate_with, second_to_operate_with);
+                                }
+                                break;
+                            case 3: //SUB
+                                if (ADD_num != 0)
+                                {
+                                    SLEEP();
+                                    SUB.SUB_REGS(m, first_to_operate_with, ADD_num);
+                                }
+
+                                else
+                                {
+                                    SLEEP();
+                                    SUB.SUB_REGS(m, first_to_operate_with, second_to_operate_with);
+                                }
+                                break;
+                            case 4: //INC
                                 SLEEP();
-                                ADD.ADD_REGS(m, first_to_operate_with, ADD_num);
-                            }
+                                INC.INC_REG(m, first_to_operate_with);
+                                break;
+                            case 5: //DEC
+                                SLEEP();
+                                DEC.DEC_REG(m, first_to_operate_with);
+                                break;
+                        }
+                        break;
+                    case 2: //Data Transfer
+                        switch (selected_instruction)
+                        {
+                            case 1: //MOV
+                                SLEEP();
+                                MOV.MOV_REGS(m, first_to_operate_with, second_to_operate_with);
+                                break;
+                            case 2: //XCHG
+                                SLEEP();
+                                XCHG.XCHG_REGS(m, first_to_operate_with, second_to_operate_with);
+                                break;
+                        }
+                        break;
+                    case 3: //Control
+                        switch (selected_instruction)
+                        {
+                            case 1: //STC
+                                SLEEP_CONTROL();
+                                STC.STC_FLAGS(m);
+                                break;
+                            case 2: //CLC
+                                SLEEP_CONTROL();
+                                CLC.CLC_FLAGS(m);
+                                break;
+                            case 3: //CMC
+                                SLEEP_CONTROL();
+                                CMC.CMC_FLAGS(m);
+                                break;
+                            case 4: //STD
+                                SLEEP_CONTROL();
+                                STD.STD_FLAGS(m);
+                                break;
+                            case 5: //CLD
+                                SLEEP_CONTROL();
+                                CLD.CLD_FLAGS(m);
+                                break;
+                            case 6: //STI
+                                SLEEP_CONTROL();
+                                STI.STI_FLAGS(m);
+                                break;
+                            case 7: //CLI
+                                SLEEP_CONTROL();
+                                CLI.CLI_FLAGS(m);
+                                break;
+                            case 8: //HLT
+                                SLEEP_CONTROL();
+                                HLT.HLT_EXIT();
+                                break;
+                        }
+                        break;
+                }
 
-                            else
-                            {
-                                ADD.ADD_REGS(m, first_to_operate_with, second_to_operate_with);
-                            }
-                            break;
-                        //case 2:
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Press ESCAPE to stop or do anything else to continue\n");
 
-                        //    break;
-                        case 3:
+                if(Console.ReadKey().Key == ConsoleKey.Escape)
+                {
+                    exit = true;
+                    Console.Write("\n");
+                    Console.ResetColor();
+                }
 
-                    }
-                    break;
-                //case 2:
-                //    switch (selected_instruction)
-                //    {
-                //        case 1:
+                else
+                {
+                    Console.Clear();
+                }
 
-                //            break;
-                //    }
-                //    break;
-                //case 3:
-                //    switch (selected_instruction)
-                //    {
-                //        case 1:
-
-                //            break;
-                //    }
-                //    break;
-                //case 4:
-                //    switch (selected_instruction)
-                //    {
-                //        case 1:
-
-                //            break;
-                //    }
-                //    break;
-                //case 5:
-                //    switch (selected_instruction)
-                //    {
-                //        case 1:
-
-                //            break;
-                //    }
-                //    break;
-                //case 6:
-                //    switch (selected_instruction)
-                //    {
-                //        case 1:
-
-                //            break;
-                //    }
-                //    break;
-            }
-
-
-            
-
-             
-                
-            REG_VALUES(m.AX, m.BX, m.CX, m.DX);
-
-            
-
-
-
-
-            Console.ReadKey();
-
-
+            } while (exit == false);
 
         }
     }

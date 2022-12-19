@@ -8,9 +8,67 @@ namespace Intel_8086___Emulator
 {
     public class MOV
     {
-        public static void MOV_REGS(MAIN a)
+        public static void MOV_REGS(MAIN a, int first, int second) //Method which moves value of one register to another
         {
-            
+            switch (first)
+            {
+                case 1:
+                    switch (second)
+                    {
+                        case 2:
+                            a.AX = a.BX;
+                            break;
+                        case 3:
+                            a.AX = a.CX;
+                            break;
+                        case 4:
+                            a.AX = a.DX;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (second)
+                    {
+                        case 1:
+                            a.BX = a.AX;
+                            break;
+                        case 3:
+                            a.BX = a.CX;
+                            break;
+                        case 4:
+                            a.BX = a.DX;
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (second)
+                    {
+                        case 1:
+                            a.CX = a.AX;
+                            break;
+                        case 2:
+                            a.CX = a.BX;
+                            break;
+                        case 4:
+                            a.CX = a.DX;
+                            break;
+                    }
+                    break;
+                case 4:
+                    switch (second)
+                    {
+                        case 1:
+                            a.DX = a.AX;
+                            break;
+                        case 2:
+                            a.DX = a.BX;
+                            break;
+                        case 3:
+                            a.DX = a.CX;
+                            break;
+                    }
+                    break;
+            }
         }
     }
 }

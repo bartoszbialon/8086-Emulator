@@ -8,7 +8,7 @@ namespace Intel_8086___Emulator
 {
     public class ADD
     {
-        public static void ADD_REGS(MAIN a, int first, int second) //
+        public static void ADD_REGS(MAIN a, int first, int second) //Method which adds value from one register to another
         {
             switch (first)
             {
@@ -71,7 +71,7 @@ namespace Intel_8086___Emulator
             }
         }
 
-        public static void ADD_REGS(MAIN a, int first, short num) //
+        public static void ADD_REGS(MAIN a, int first, short num) //Method which adds given value to the specified register
         {
             switch (first)
             {

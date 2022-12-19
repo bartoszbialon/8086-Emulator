@@ -43,3 +43,10 @@ C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 808
 C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
 C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
 C:\Users\Bartosz\Desktop\8086 Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.exe
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\bin\Debug\Intel 8086 - Emulator.pdb
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.AssemblyReference.cache
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.SuggestedBindingRedirects.cache
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.csproj.CoreCompileInputs.cache
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.exe
+C:\Users\Bartosz\Desktop\8086-Emulator\Intel 8086 - Emulator\obj\Debug\Intel 8086 - Emulator.pdb

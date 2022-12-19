@@ -44,6 +44,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ADD.cs" />
+    <Compile Include="ADC.cs" />
+    <Compile Include="STD.cs" />
+    <Compile Include="CLD.cs" />
+    <Compile Include="STI.cs" />
+    <Compile Include="CLI.cs" />
+    <Compile Include="HLT.cs" />
+    <Compile Include="CMC.cs" />
+    <Compile Include="CLC.cs" />
+    <Compile Include="STC.cs" />
+    <Compile Include="XCHG.cs" />
     <Compile Include="INC.cs" />
     <Compile Include="DEC.cs" />
     <Compile Include="SUB.cs" />

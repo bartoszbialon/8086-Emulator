@@ -6,23 +6,25 @@ using System.Threading.Tasks;
 
 namespace Intel_8086___Emulator
 {
-    public class SUB
+    public class ADC
     {
-        public static void SUB_REGS(MAIN a, int first, int second) //Method which subtracts value from one register to another
+        public static void ADC_REGS(MAIN a, int first, int second) //Method which adds value from one register to another
         {
+            a.CF = true; //Carry Flag set to 1
+
             switch (first)
             {
                 case 1:
                     switch (second)
                     {
                         case 2:
-                            a.AX -= a.BX;
+                            a.AX += a.BX;
                             break;
                         case 3:
-                            a.AX -= a.CX;
+                            a.AX += a.CX;
                             break;
                         case 4:
-                            a.AX -= a.DX;
+                            a.AX += a.DX;
                             break;
                     }
                     break;
@@ -30,13 +32,13 @@ namespace Intel_8086___Emulator
                     switch (second)
                     {
                         case 1:
-                            a.BX -= a.AX;
+                            a.BX += a.AX;
                             break;
                         case 3:
-                            a.BX -= a.CX;
+                            a.BX += a.CX;
                             break;
                         case 4:
-                            a.BX -= a.DX;
+                            a.BX += a.DX;
                             break;
                     }
                     break;
@@ -44,13 +46,13 @@ namespace Intel_8086___Emulator
                     switch (second)
                     {
                         case 1:
-                            a.CX -= a.AX;
+                            a.CX += a.AX;
                             break;
                         case 2:
-                            a.CX -= a.BX;
+                            a.CX += a.BX;
                             break;
                         case 4:
-                            a.CX -= a.DX;
+                            a.CX += a.DX;
                             break;
                     }
                     break;
@@ -58,34 +60,36 @@ namespace Intel_8086___Emulator
                     switch (second)
                     {
                         case 1:
-                            a.DX -= a.AX;
+                            a.DX += a.AX;
                             break;
                         case 2:
-                            a.DX -= a.BX;
+                            a.DX += a.BX;
                             break;
                         case 3:
-                            a.DX -= a.CX;
+                            a.DX += a.CX;
                             break;
                     }
                     break;
             }
         }
 
-        public static void SUB_REGS(MAIN a, int first, short num) //Method which subtracts given value from the specified register
+        public static void ADC_REGS(MAIN a, int first, short num) //Method which adds given value to the specified register
         {
+            a.CF = true; //Carry Flag set to 1
+
             switch (first)
             {
                 case 1:
-                    a.AX -= num;
+                    a.AX += num;
                     break;
                 case 2:
-                    a.BX -= num;
+                    a.BX += num;
                     break;
                 case 3:
-                    a.CX -= num;
+                    a.CX += num;
                     break;
                 case 4:
-                    a.DX -= num;
+                    a.DX += num;
                     break;
             }
         }
